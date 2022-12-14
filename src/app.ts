@@ -6,7 +6,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import tweetsRouter from "./router/tweets";
 import AWS from "aws-sdk";
-import { S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import multer from "multer";
 import multerS3 from "multer-s3";
 
@@ -19,14 +19,13 @@ const accessKeyId = `${process.env.accessKeyId}`;
 const secretAccessKey = `${process.env.secretAccessKey}`;
 
 AWS.config.update({
-  region,
-  credentials: {
-    accessKeyId,
-    secretAccessKey,
-  },
+  accessKeyId,
+  secretAccessKey,
 });
 
-const S3_Bucket = new AWS.S3();
+const S3_Bucket = new AWS.S3({
+  region,
+});
 
 const S3_Bucket_Client = new S3Client({
   credentials: {
@@ -136,9 +135,6 @@ app.get(
 app.delete(
   "/delete/:filename",
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log(BUCKET_NAME);
-    console.log(req.params.filename);
-
     try {
       S3_Bucket.deleteObject(
         {
@@ -160,6 +156,25 @@ app.delete(
     }
   }
 );
+
+// S3Client 모듈로 삭제기능 구현
+// app.delete(
+//   "/delete/:filename",
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const data = await S3_Bucket_Client.send(
+//         new DeleteObjectCommand({
+//           Bucket: BUCKET_NAME,
+//           Key: req.params.filename,
+//         })
+//       );
+//       console.log(data);
+//       res.status(200).json(data);
+//     } catch (error) {
+//       res.status(400).json(error);
+//     }
+//   }
+// );
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const status = error.status || 500;
