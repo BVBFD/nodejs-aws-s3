@@ -4,7 +4,6 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
-import tweetsRouter from "./router/tweets";
 import AWS from "aws-sdk";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import multer from "multer";
